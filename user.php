@@ -6,6 +6,7 @@ class User
     // ATTRIBUTS
     private $id;
     public $login;
+    public $password;
     public $email;
     public $firstname;
     public $lastname;
@@ -17,6 +18,7 @@ class User
 
         $connexion= mysqli_connect("localhost", "root", "", "classes");
         $password = password_hash($password,PASSWORD_DEFAULT);
+        var_dump($password);
         $requet= "SELECT * FROM user WHERE login = '".$login."'";
         $sql = mysqli_query($connexion, $requet);
         $resultat = mysqli_fetch_all($sql);
@@ -46,10 +48,9 @@ echo "connecté";
                 if(!empty($resultat))
                 {
                     $passhash=$resultat['password'];
-
+                    var_dump($passhash);
                     if(password_verify($password, $passhash))
                     {
-                        
                         $_SESSION['login'] = $resultat['login'];
                         var_dump($_SESSION);
                         $this->id = $resultat['id'];
@@ -153,7 +154,7 @@ echo "connecté";
 
     public function isConnected()
     {
-        if (isset($_SESSION['toto']))
+        if (isset($_SESSION['login']))
         {
             return true;
         }
@@ -209,6 +210,8 @@ echo "connecté";
 
     public function refresh()
     {
+        $_SESSION['test'] = "ruben";
+        var_dump($_SESSION);
         $login= $_SESSION['login'];
         $connexion=mysqli_connect("localhost","root","","classes"); 
         $requete= "SELECT * FROM user WHERE login='".$login."'";
@@ -239,7 +242,9 @@ echo "connecté";
 
 $alex= new User;
 
-$alex->connect("toto","toto");
+$alex->register("alex","secret","alexandra.reggi@laplateforme","alexandra", "reggi");
+
+$alex->connect("alex","secret");
 
 var_dump($alex->getAllInfos());
 
