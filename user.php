@@ -1,9 +1,14 @@
 <?php
 
+session_start();
+ 
+ //Exercice: classes user avec les requêtes langage sql
 
+ 
 class User
 {
     // ATTRIBUTS
+
     private $id;
     public $login;
     public $password;
@@ -13,6 +18,8 @@ class User
 
 
     // FONCTIONS
+
+    //Crée l’utilisateur en base de données. Retourne un tableau contenant l’ensemble des informations concernant l’utilisateur créé.
     public function register($login, $password, $email, $firstname, $lastname)
     {
 
@@ -22,37 +29,44 @@ class User
         $requet= "SELECT * FROM user WHERE login = '".$login."'";
         $sql = mysqli_query($connexion, $requet);
         $resultat = mysqli_fetch_all($sql);
+        //var_dump($resultat);
 
         if (!empty($resultat[0]) && $resultat[0] != "") 
         {
-            return "<p>login déja existant!!</p>";
+            echo "<p>login déja existant!!</p>";
         }
         else
         {
-            $sql = "INSERT INTO user VALUES (NULL,'".$login."', '".$email."', '".$password."', '".$firstname."', '".$lastname."')";
-            mysqli_query($connexion, $sql);
-            return "<p>vous êtes bien enregistré!!</p>"; 
+            $requet = "INSERT INTO user VALUES (NULL,'".$login."', '".$email."', '".$password."', '".$firstname."', '".$lastname."')";
+            mysqli_query($connexion, $requet);
+            echo "<p>vous êtes bien enregistré!!</p>"; 
         }
     }
 
 
 
-
+//Connecte l’utilisateur, modifie les attributs présents dans la classe et retourne un tableau contenant l’ensemble de ses informations.
     public function connect($login, $password)
     {
             $connexion=mysqli_connect("localhost","root","","classes"); 
             $requete= "SELECT * FROM user WHERE login='".$login."'";
             $query=mysqli_query($connexion, $requete);
             $resultat= mysqli_fetch_assoc($query);
-echo "connecté";
+
+                            echo "connecté";
+
                 if(!empty($resultat))
                 {
                     $passhash=$resultat['password'];
-                    var_dump($passhash);
+
+                            var_dump($passhash);
+
                     if(password_verify($password, $passhash))
                     {
                         $_SESSION['login'] = $resultat['login'];
-                        var_dump($_SESSION);
+
+                            var_dump($_SESSION);
+
                         $this->id = $resultat['id'];
                         $this->login = $resultat['login'];
                         $this->password = $resultat['password'];
@@ -60,13 +74,13 @@ echo "connecté";
                         $this->firstname = $resultat['firstname'];
                         $this->lastname = $resultat['lastname'];
 
-                        return "<p><STRONG>BIENVENUE</STRONG></p>";
-                        header("refresh:2;url=index.php");
+                        echo "<p><STRONG>BIENVENUE</STRONG></p>";
+                
                     }
 
                     else
                     {
-                        return "<p><STRONG>Désolé nous n'avons pas pu vous identifier</STRONG></p>";  
+                        echo "<p><STRONG>Désolé nous n'avons pas pu vous identifier</STRONG></p>";  
                     }
                 
             
@@ -75,15 +89,17 @@ echo "connecté";
     } 
     
 
-
+//Déconnecte l’utilisateur.
     public function disconnect()
         {
             unset($_SESSION);
-            session_destroy(); 
+            session_destroy();
+            header("Location:user.php");
+            echo "Vous êtes déconnecté";
         }
 
 
-
+//Supprime et déconnecte l’utilisateur.
     public function delete()
     {
         $connexion =  mysqli_connect("localhost","root","","classes");
@@ -93,7 +109,7 @@ echo "connecté";
     }
 
 
-
+//Modifie les informations de l’utilisateur en base de données.
     public function update()
     {
         $connexion =  mysqli_connect("localhost","root","","classes");
@@ -112,8 +128,8 @@ echo "connecté";
                                 $nouveau_login= "SELECT id FROM user WHERE login='".$login."'";// login bdd//
                                 $resultat3= mysqli_query($connexion, $nouveau_login);
                                 $nombre_login=mysqli_num_rows($resultat3);
-                                var_dump($nouveau_login);
-
+                                var_dump($nouveau_login); 
+                                
                                 $log = $_SESSION['login'];//la session devient cette variable//
 
                                 $nouveau_login2= "SELECT id FROM user WHERE login= '$log'";//donc on select le nouveau login//
@@ -139,19 +155,16 @@ echo "connecté";
                             }
                                 else
                                 {
-                                    echo "<p><strong> Veuillez remplir touds les champs </strong></p>";
-                                }
-                                
-                            
+                                    echo "<p><strong> Veuillez remplir tous les champs </strong></p>";
+                                }    
                         }
                     }
                 }
-
     }
 
 
 
-
+//Retourne un booléen permettant de savoir si un utilisateur est connecté ou non.
     public function isConnected()
     {
         if (isset($_SESSION['login']))
@@ -163,7 +176,7 @@ echo "connecté";
 
 
 
-
+//Retourne un tableau contenant l’ensemble des informations de l’utilisateur.
     public function getAllInfos()
     {
         $infos= array(
@@ -180,38 +193,40 @@ echo "connecté";
 
 
 
-
+//Retourne le login de l’utilisateur connecté.
     public function getLogin()
     {
         return $this->login;
     }
 
 
-
+//Retourne l’adresse email de l’utilisateur connecté.
     public function getEmail()
     {
         return $this->email;
     }
 
-
+//Retourne le firstname de l’utilisateur connecté.
     public function getFirstname()
     {
         return $this->firstname;
     }
 
 
-
+//Retourne le lastname de l’utilisateur connecté.
     public function getLastname()
     {
         return $this->lastname;
-
     }
 
 
+//Met à jour les attributs de la classe à partir de la base de données.
     public function refresh()
     {
         $_SESSION['test'] = "ruben";
+
         var_dump($_SESSION);
+
         $login= $_SESSION['login'];
         $connexion=mysqli_connect("localhost","root","","classes"); 
         $requete= "SELECT * FROM user WHERE login='".$login."'";
@@ -231,8 +246,6 @@ echo "connecté";
             return($this);
         }
     }
-
-   
 
 }
 
